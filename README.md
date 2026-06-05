@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # excelerate_connect
 
 A new Flutter project.
@@ -15,3 +16,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# Team8-Excelerate-MADJune26
+>>>>>>> 9d0a92a8a17e7e4b9096b9fa42bb34d2b17b7960
