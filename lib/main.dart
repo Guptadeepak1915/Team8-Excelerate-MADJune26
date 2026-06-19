@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const ExcelerateConnectApp());
@@ -60,6 +63,7 @@ class ExcelerateConnectApp extends StatelessWidget {
         LoginScreen.routeName: (_) => const LoginScreen(),
         HomeScreen.routeName: (_) => const HomeScreen(),
         ProgramListScreen.routeName: (_) => const ProgramListScreen(),
+        RegistrationScreen.routeName: (_) => const RegistrationScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == ProgramDetailsScreen.routeName) {
@@ -76,60 +80,54 @@ class ExcelerateConnectApp extends StatelessWidget {
 
 class Program {
   const Program({
+    required this.id,
     required this.title,
     required this.date,
     required this.topic,
     required this.description,
     required this.duration,
     required this.format,
+    required this.seats,
+    required this.outcomes,
   });
 
+  final String id;
   final String title;
   final String date;
   final String topic;
   final String description;
   final String duration;
   final String format;
+  final int seats;
+  final List<String> outcomes;
+
+  factory Program.fromJson(Map<String, dynamic> json) {
+    return Program(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      date: json['date'] as String,
+      topic: json['topic'] as String,
+      description: json['description'] as String,
+      duration: json['duration'] as String,
+      format: json['format'] as String,
+      seats: json['seats'] as int,
+      outcomes: List<String>.from(json['outcomes'] as List<dynamic>),
+    );
+  }
 }
 
-const programs = [
-  Program(
-    title: 'Career Accelerator Bootcamp',
-    date: 'June 21, 2026',
-    topic: 'Career Readiness',
-    duration: '4 weeks',
-    format: 'Live online',
-    description:
-        'Build a polished profile, practice interview stories, and learn how to present project work with confidence. The bootcamp includes mentor feedback, resume reviews, and weekly action plans.',
-  ),
-  Program(
-    title: 'Data Analytics Sprint',
-    date: 'July 3, 2026',
-    topic: 'Analytics and Dashboards',
-    duration: '10 days',
-    format: 'Hybrid',
-    description:
-        'Work through a practical analytics case using spreadsheets, visualization, and stakeholder reporting. Participants finish with a dashboard and a short insight presentation.',
-  ),
-  Program(
-    title: 'Product Innovation Lab',
-    date: 'July 18, 2026',
-    topic: 'Product Strategy',
-    duration: '3 weeks',
-    format: 'Team project',
-    description:
-        'Explore customer problems, prototype solutions, and convert ideas into a clear product pitch. The lab is designed for interns who want hands-on experience with discovery and delivery.',
-  ),
-  Program(
-    title: 'Leadership Micro-Internship',
-    date: 'August 5, 2026',
-    topic: 'Leadership and Communication',
-    duration: '2 weeks',
-    format: 'Mentored cohort',
-    description:
-        'Practice professional communication, meeting ownership, and team coordination through guided challenges. Each participant receives mentor notes and a completion certificate.',
-  ),
-];
+class ProgramRepository {
+  const ProgramRepository();
+
+  Future<List<Program>> fetchPrograms() async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    final rawJson = await rootBundle.loadString('assets/data/programs.json');
+    final decoded = jsonDecode(rawJson) as List<dynamic>;
+    return decoded
+        .map((item) => Program.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -443,18 +441,44 @@ class ProgramListScreen extends StatelessWidget {
   const ProgramListScreen({super.key});
 
   static const routeName = '/programs';
+  static const _repository = ProgramRepository();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Programs')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: programs.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final program = programs[index];
-          return ProgramCard(program: program);
+      body: FutureBuilder<List<Program>>(
+        future: _repository.fetchPrograms(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return _ErrorState(
+              message: 'Could not load programs. Please try again later.',
+              onRetry: () {
+                Navigator.of(context).pushReplacementNamed(routeName);
+              },
+            );
+          }
+
+          final programs = snapshot.data ?? [];
+          if (programs.isEmpty) {
+            return const _EmptyState(
+              message: 'No programs are available right now.',
+            );
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(20),
+            itemCount: programs.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final program = programs[index];
+              return ProgramCard(program: program);
+            },
+          );
         },
       ),
     );
@@ -503,6 +527,10 @@ class ProgramCard extends StatelessWidget {
                 children: [
                   _InfoChip(icon: Icons.calendar_today, label: program.date),
                   _InfoChip(icon: Icons.topic_outlined, label: program.topic),
+                  _InfoChip(
+                    icon: Icons.event_seat_outlined,
+                    label: '${program.seats} seats',
+                  ),
                 ],
               ),
             ],
@@ -527,16 +555,17 @@ class ProgramDetailsScreen extends StatefulWidget {
 class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
   bool _registered = false;
 
-  void _register() {
-    setState(() {
-      _registered = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Registered for ${widget.program.title}'),
-        behavior: SnackBarBehavior.floating,
-      ),
+  Future<void> _openRegistrationForm() async {
+    final submitted = await Navigator.of(context).pushNamed<bool>(
+      RegistrationScreen.routeName,
+      arguments: widget.program,
     );
+
+    if (submitted != true || !mounted) {
+      return;
+    }
+
+    setState(() => _registered = true);
   }
 
   @override
@@ -564,6 +593,10 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
               _InfoChip(icon: Icons.topic_outlined, label: program.topic),
               _InfoChip(icon: Icons.schedule, label: program.duration),
               _InfoChip(icon: Icons.language_outlined, label: program.format),
+              _InfoChip(
+                icon: Icons.event_seat_outlined,
+                label: '${program.seats} seats',
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -591,13 +624,266 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 18),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Learning Outcomes',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 10),
+                  for (final outcome in program.outcomes)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.check_circle_outline, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(outcome)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: _registered ? null : _register,
+            onPressed: _registered ? null : _openRegistrationForm,
             icon: Icon(_registered ? Icons.check_circle : Icons.app_registration),
             label: Text(_registered ? 'Registered' : 'Register Now'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
+
+  static const routeName = '/register';
+
+  @override
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
+}
+
+class _RegistrationScreenState extends State<RegistrationScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _motivationController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _motivationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit(Program program) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Registration submitted for ${program.title}'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    Navigator.of(context).pop(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final program = ModalRoute.of(context)!.settings.arguments as Program;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Program Registration')),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              Text(
+                program.title,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const SizedBox(height: 18),
+              TextFormField(
+                controller: _nameController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Full name',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Full name is required';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Email address',
+                  prefixIcon: Icon(Icons.mail_outline),
+                ),
+                validator: (value) {
+                  final email = value?.trim() ?? '';
+                  if (email.isEmpty) {
+                    return 'Email address is required';
+                  }
+                  if (!email.contains('@') || !email.contains('.')) {
+                    return 'Enter a valid email address';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    tooltip:
+                        _obscurePassword ? 'Show password' : 'Hide password',
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  final password = value ?? '';
+                  if (password.isEmpty) {
+                    return 'Password is required';
+                  }
+                  if (password.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _motivationController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Why do you want to join?',
+                  alignLabelWithHint: true,
+                  prefixIcon: Icon(Icons.edit_note_outlined),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().length < 10) {
+                    return 'Please write at least 10 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 22),
+              FilledButton.icon(
+                onPressed: _isSubmitting ? null : () => _submit(program),
+                icon: _isSubmitting
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send_outlined),
+                label: Text(_isSubmitting ? 'Submitting' : 'Submit Registration'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 42),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }

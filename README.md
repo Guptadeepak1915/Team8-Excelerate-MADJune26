@@ -1,21 +1,28 @@
-<<<<<<< HEAD
-# excelerate_connect
+# Team8 Excelerate Connect
 
-A new Flutter project.
+Flutter app for browsing Excelerate internship programs and registering for a
+program.
 
-## Getting Started
+## Week 3 Updates
 
-This project is a starting point for a Flutter application.
+- Connected the Program Listing screen to `assets/data/programs.json`.
+- Updated the Program Details screen to show JSON-driven details, seats, and
+  learning outcomes.
+- Added a Program Registration form with required name, email, password, and
+  motivation fields.
+- Added validation, loading indicators, empty state, and error handling for the
+  program flow.
+- Added `WEEK3_CHANGELOG.md` with a short implementation summary.
 
-A few resources to get you started if this is your first Flutter project:
+## Run Locally
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# Team8-Excelerate-MADJune26
->>>>>>> 9d0a92a8a17e7e4b9096b9fa42bb34d2b17b7960
+## Test
+
+```bash
+flutter test
+```

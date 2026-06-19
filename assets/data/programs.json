@@ -1,0 +1,62 @@
+[
+  {
+    "id": "career-accelerator",
+    "title": "Career Accelerator Bootcamp",
+    "date": "June 21, 2026",
+    "topic": "Career Readiness",
+    "duration": "4 weeks",
+    "format": "Live online",
+    "seats": 35,
+    "description": "Build a polished profile, practice interview stories, and learn how to present project work with confidence. The bootcamp includes mentor feedback, resume reviews, and weekly action plans.",
+    "outcomes": [
+      "Create a job-ready resume and LinkedIn profile",
+      "Practice behavioral interview answers",
+      "Prepare a project portfolio walkthrough"
+    ]
+  },
+  {
+    "id": "data-analytics",
+    "title": "Data Analytics Sprint",
+    "date": "July 3, 2026",
+    "topic": "Analytics and Dashboards",
+    "duration": "10 days",
+    "format": "Hybrid",
+    "seats": 24,
+    "description": "Work through a practical analytics case using spreadsheets, visualization, and stakeholder reporting. Participants finish with a dashboard and a short insight presentation.",
+    "outcomes": [
+      "Clean and prepare sample business data",
+      "Build a dashboard for key metrics",
+      "Present insights with clear recommendations"
+    ]
+  },
+  {
+    "id": "product-innovation",
+    "title": "Product Innovation Lab",
+    "date": "July 18, 2026",
+    "topic": "Product Strategy",
+    "duration": "3 weeks",
+    "format": "Team project",
+    "seats": 30,
+    "description": "Explore customer problems, prototype solutions, and convert ideas into a clear product pitch. The lab is designed for interns who want hands-on experience with discovery and delivery.",
+    "outcomes": [
+      "Map a customer problem and user journey",
+      "Prototype a product concept",
+      "Pitch a roadmap and success metrics"
+    ]
+  },
+  {
+    "id": "leadership-micro",
+    "title": "Leadership Micro-Internship",
+    "date": "August 5, 2026",
+    "topic": "Leadership and Communication",
+    "duration": "2 weeks",
+    "format": "Mentored cohort",
+    "seats": 20,
+    "description": "Practice professional communication, meeting ownership, and team coordination through guided challenges. Each participant receives mentor notes and a completion certificate.",
+    "outcomes": [
+      "Lead weekly standups and check-ins",
+      "Write concise project updates",
+      "Receive mentor feedback on communication"
+    ]
+  }
+]
