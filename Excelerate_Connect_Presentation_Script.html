@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Excelerate Connect Presentation Script</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: #102033;
+      background: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    .cover {
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom: 4px solid #2563eb;
+      page-break-after: always;
+    }
+
+    .eyebrow {
+      color: #2563eb;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: 42px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      max-width: 620px;
+      color: #536173;
+      font-size: 18px;
+    }
+
+    .meta {
+      margin-top: 36px;
+      color: #536173;
+      font-size: 14px;
+    }
+
+    section {
+      page-break-after: always;
+    }
+
+    section:last-child {
+      page-break-after: auto;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      color: #12385f;
+      font-size: 26px;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 17px;
+    }
+
+    p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .speaker {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 6px 10px;
+      color: #12385f;
+      background: #edf5ff;
+      border: 1px solid #cfe2ff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .script {
+      padding: 14px 16px;
+      background: #f6f8fb;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 14px;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      color: #172033;
+      background: #f4f6f8;
+      border: 1px solid #d5dce7;
+      border-radius: 8px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10.6px;
+      line-height: 1.35;
+    }
+
+    .closing {
+      margin-top: 20px;
+      padding: 16px;
+      color: #ffffff;
+      background: #12385f;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="eyebrow">Flutter App Presentation</div>
+    <h1>Excelerate Connect</h1>
+    <p class="subtitle">
+      Page-wise presentation script for 6 people with the related Flutter code snippets from <strong>lib/main.dart</strong>.
+    </p>
+    <p class="meta">Screens covered: App setup, Login, Home, Programs, Details, Registration.</p>
+  </div>
+
+  <section>
+    <span class="speaker">Person 1</span>
+    <h2>App Setup, Theme, And Navigation</h2>
+    <div class="script">
+      <p>
+        Good morning everyone. Hamara project Excelerate Connect ek Flutter-based internship aur program discovery app hai.
+        Is app ka entry point <strong>main()</strong> function hai, jahan se <strong>ExcelerateConnectApp</strong> run hota hai.
+        App me Material 3 theme use ki gayi hai, blue seed color ke saath clean UI banaya gaya hai.
+        Navigation ke liye named routes use hue hain, jaise login, home, programs, registration, aur details page.
+      </p>
+    </div>
+    <h3>Code</h3>
+    <pre><code>void main() {
+  runApp(const ExcelerateConnectApp());
+}
+
+class ExcelerateConnectApp extends StatelessWidget {
+  const ExcelerateConnectApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Excelerate Connect',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF2563EB),
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+      ),
+      initialRoute: LoginScreen.routeName,
+      routes: {
+        LoginScreen.routeName: (_) => const LoginScreen(),
+        HomeScreen.routeName: (_) => const HomeScreen(),
+        ProgramListScreen.routeName: (_) => const ProgramListScreen(),
+        RegistrationScreen.routeName: (_) => const RegistrationScreen(),
+      },
+    );
+  }
+}</code></pre>
+  </section>
+
+  <section>
+    <span class="speaker">Person 2</span>
+    <h2>Login Page</h2>
+    <div class="script">
+      <p>
+        Login screen app ka first page hai. Yahan user email aur password enter kar sakta hai.
+        Password field me show aur hide option diya gaya hai. Login button aur Continue as guest dono user ko home screen par le jaate hain.
+        Is page ka main purpose app ka entry flow dikhana hai.
+      </p>
+    </div>
+    <h3>Code</h3>
+    <pre><code>class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  static const routeName = '/';
+
+  @override
+  State&lt;LoginScreen&gt; createState() =&gt; _LoginScreenState();
+}
+
+void _login() {
+  Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+}</code></pre>
+    <h3>Important UI Code</h3>
+    <pre><code>TextField(
+  controller: _emailController,
+  keyboardType: TextInputType.emailAddress,
+  decoration: const InputDecoration(
+    labelText: 'Email address',
+    prefixIcon: Icon(Icons.mail_outline),
+  ),
+),
+
+TextField(
+  controller: _passwordController,
+  obscureText: _obscurePassword,
+  decoration: InputDecoration(
+    labelText: 'Password',
+    prefixIcon: const Icon(Icons.lock_outline),
+    suffixIcon: IconButton(
+      onPressed: () {
+        setState(() {
+          _obscurePassword = !_obscurePassword;
+        });
+      },
+      icon: Icon(
+        _obscurePassword
+            ? Icons.visibility_outlined
+            : Icons.visibility_off_outlined,
+      ),
+    ),
+  ),
+),</code></pre>
+  </section>
+
+  <section>
+    <span class="speaker">Person 3</span>
+    <h2>Home Page</h2>
+    <div class="script">
+      <p>
+        Login ke baad user Home page par aata hai. Home page me welcome panel, announcements, aur quick links diye gaye hain.
+        Browse Programs button aur Programs quick link dono user ko programs list page par navigate karte hain.
+        Is page se app ka dashboard experience start hota hai.
+      </p>
+    </div>
+    <h3>Code</h3>
+    <pre><code>class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  static const routeName = '/home';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          _WelcomePanel(
+            onBrowsePrograms: () {
+              Navigator.of(context).pushNamed(ProgramListScreen.routeName);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}</code></pre>
+    <h3>Quick Links Code</h3>
+    <pre><code>_QuickLinkTile(
+  icon: Icons.school_outlined,
+  label: 'Programs',
+  onTap: () {
+    Navigator.of(context).pushNamed(ProgramListScreen.routeName);
+  },
+),</code></pre>
+  </section>
+
+  <section>
+    <span class="speaker">Person 4</span>
+    <h2>Program List Page And Data Loading</h2>
+    <div class="script">
+      <p>
+        Programs page par app JSON data se programs load karta hai. Iske liye <strong>ProgramRepository</strong> class use hui hai.
+        Data <strong>assets/data/programs.json</strong> file se load hota hai.
+        Page me <strong>FutureBuilder</strong> use kiya gaya hai, jisse loading, error, empty state, aur data state handle hoti hai.
+      </p>
+    </div>
+    <h3>Repository Code</h3>
+    <pre><code>class ProgramRepository {
+  const ProgramRepository();
+
+  Future&lt;List&lt;Program&gt;&gt; fetchPrograms() async {
+    await Future&lt;void&gt;.delayed(const Duration(milliseconds: 500));
+    final rawJson = await rootBundle.loadString('assets/data/programs.json');
+    final decoded = jsonDecode(rawJson) as List&lt;dynamic&gt;;
+    return decoded
+        .map((item) =&gt; Program.fromJson(item as Map&lt;String, dynamic&gt;))
+        .toList();
+  }
+}</code></pre>
+    <h3>FutureBuilder Code</h3>
+    <pre><code>FutureBuilder&lt;List&lt;Program&gt;&gt;(
+  future: _repository.fetchPrograms(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState != ConnectionState.done) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (snapshot.hasError) {
+      return _ErrorState(
+        message: 'Could not load programs. Please try again later.',
+        onRetry: () {
+          Navigator.of(context).pushReplacementNamed(routeName);
+        },
+      );
+    }
+
+    final programs = snapshot.data ?? [];
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(20),
+      itemCount: programs.length,
+      separatorBuilder: (_, __) =&gt; const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final program = programs[index];
+        return ProgramCard(program: program);
+      },
+    );
+  },
+),</code></pre>
+  </section>
+
+  <section>
+    <span class="speaker">Person 5</span>
+    <h2>Program Details Page</h2>
+    <div class="script">
+      <p>
+        Jab user kisi program card par click karta hai, tab Program Details page open hota hai.
+        Is page me program ka title, date, topic, duration, format, seats, description, aur learning outcomes show hote hain.
+        Register Now button se user registration form par ja sakta hai.
+        Registration complete hone ke baad button Registered state me change ho jaata hai.
+      </p>
+    </div>
+    <h3>Code</h3>
+    <pre><code>class ProgramDetailsScreen extends StatefulWidget {
+  const ProgramDetailsScreen({super.key, required this.program});
+
+  static const routeName = '/program-details';
+
+  final Program program;
+
+  @override
+  State&lt;ProgramDetailsScreen&gt; createState() =&gt; _ProgramDetailsScreenState();
+}</code></pre>
+    <h3>Registration State Code</h3>
+    <pre><code>bool _registered = false;
+
+Future&lt;void&gt; _openRegistrationForm() async {
+  final submitted = await Navigator.of(context).pushNamed&lt;bool&gt;(
+    RegistrationScreen.routeName,
+    arguments: widget.program,
+  );
+
+  if (submitted != true || !mounted) {
+    return;
+  }
+
+  setState(() =&gt; _registered = true);
+}</code></pre>
+    <h3>Button Code</h3>
+    <pre><code>FilledButton.icon(
+  onPressed: _registered ? null : _openRegistrationForm,
+  icon: Icon(_registered ? Icons.check_circle : Icons.app_registration),
+  label: Text(_registered ? 'Registered' : 'Register Now'),
+),</code></pre>
+  </section>
+
+  <section>
+    <span class="speaker">Person 6</span>
+    <h2>Registration Form And Validation</h2>
+    <div class="script">
+      <p>
+        Registration screen app ka most important interactive part hai. Isme user full name, email, password, aur motivation enter karta hai.
+        Form validation bhi added hai: name empty nahi hona chahiye, email valid hona chahiye, password minimum 6 characters ka hona chahiye,
+        aur motivation minimum 10 characters ka hona chahiye. Submit hone ke baad snackbar show hota hai aur details page par success value return hoti hai.
+      </p>
+    </div>
+    <h3>Code</h3>
+    <pre><code>class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
+
+  static const routeName = '/register';
+
+  @override
+  State&lt;RegistrationScreen&gt; createState() =&gt; _RegistrationScreenState();
+}</code></pre>
+    <h3>Submit Code</h3>
+    <pre><code>Future&lt;void&gt; _submit(Program program) async {
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
+
+  setState(() =&gt; _isSubmitting = true);
+  await Future&lt;void&gt;.delayed(const Duration(milliseconds: 700));
+
+  if (!mounted) {
+    return;
+  }
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Registration submitted for ${program.title}'),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+  Navigator.of(context).pop(true);
+}</code></pre>
+    <h3>Validation Example</h3>
+    <pre><code>validator: (value) {
+  final email = value?.trim() ?? '';
+  if (email.isEmpty) {
+    return 'Email address is required';
+  }
+  if (!email.contains('@') || !email.contains('.')) {
+    return 'Enter a valid email address';
+  }
+  return null;
+},</code></pre>
+    <div class="closing">
+      Overall, Excelerate Connect app me login, home dashboard, program listing, program details, JSON data loading,
+      loading/error states, aur working registration form implemented hai. App ka flow simple hai:
+      Login, Home, Programs, Details, Registration, and final registered state.
+    </div>
+  </section>
+</body>
+</html>
